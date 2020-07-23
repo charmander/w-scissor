@@ -35,7 +35,7 @@ _arguments -S -s \
 	{-c,--clear}'[Instead of copying anything, clear the clipboard]' \
 	{-p,--primary}'[Use the "primary" clipboard]' \
 	{-n,--trim-newline}'[Do not copy the trailing newline character]' \
-	{-t+,--type=}'[Override the inferred MIME type for the content]:mimetype:__xdg_mimetypes' \
+	{-t+,--type=}'[Set the MIME type for the content]:mimetype:__xdg_mimetypes' \
 	{-s+,--seat=}'[Pick the seat to work with]:seat:__all_seats' \
 	{-v,--version}'[Display version info]' \
 	{-h,--help}'[Display a help message]' \

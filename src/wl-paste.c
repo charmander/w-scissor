@@ -37,7 +37,6 @@
 
 static struct {
     char *explicit_type;
-    char *inferred_type;
     int no_newline;
     int list_types;
     int primary;
@@ -48,7 +47,6 @@ static struct {
 
 struct types {
     int explicit_available;
-    int inferred_available;
     int plain_text_utf8_available;
     int plain_text_available;
     const char *having_explicit_as_prefix;
@@ -67,12 +65,6 @@ static struct types classify_offer_types(struct offer *offer) {
             strcmp(mime_type, options.explicit_type) == 0
         ) {
             types.explicit_available = 1;
-        }
-        if (
-            options.inferred_type != NULL &&
-            strcmp(mime_type, options.inferred_type) == 0
-        ) {
-            types.inferred_available = 1;
         }
         if (strcmp(mime_type, text_plain_utf8) == 0) {
             types.plain_text_utf8_available = 1;
@@ -103,10 +95,6 @@ static struct types classify_offer_types(struct offer *offer) {
 #define try_explicit \
 if (types.explicit_available) \
     return options.explicit_type
-
-#define try_inferred \
-if (types.inferred_available) \
-    return options.inferred_type
 
 #define try_text_plain_utf8 \
 if (types.plain_text_utf8_available) \
@@ -146,25 +134,15 @@ static const char *mime_type_to_request(struct types types) {
         /* No mime type requested explicitly,
          * so try to guess.
          */
-        if (options.inferred_type == NULL) {
-            try_text_plain_utf8;
-            try_text_plain;
-            try_any_text;
-            try_any;
-        } else if (mime_type_is_text(options.inferred_type)) {
-            try_inferred;
-            try_text_plain_utf8;
-            try_text_plain;
-            try_any_text;
-        } else {
-            try_inferred;
-        }
+        try_text_plain_utf8;
+        try_text_plain;
+        try_any_text;
+        try_any;
     }
     return NULL;
 }
 
 #undef try_explicit
-#undef try_inferred
 #undef try_text_plain_utf8
 #undef try_text_plain
 #undef try_prefixed
@@ -280,7 +258,6 @@ static void selection_callback(struct offer *offer, int primary) {
 
     if (!options.watch) {
         free(options.explicit_type);
-        free(options.inferred_type);
         exit(0);
     }
 }
@@ -298,7 +275,7 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t-w, --watch command\t"
         "Run a command each time the selection changes.\n"
         "\t-t, --type mime/type\t"
-        "Override the inferred MIME type for the content.\n"
+        "Set the MIME type for the content.\n"
         "\t-s, --seat seat-name\t"
         "Pick the seat to work with.\n"
         "\t-v, --version\t\tDisplay version info.\n"
@@ -409,12 +386,6 @@ static void parse_options(int argc, argv_t argv) {
 
 int main(int argc, argv_t argv) {
     parse_options(argc, argv);
-
-    char *path = path_for_fd(STDOUT_FILENO);
-    if (path != NULL && options.explicit_type == NULL) {
-        options.inferred_type = infer_mime_type_from_name(path);
-    }
-    free(path);
 
     wl_display = wl_display_connect(NULL);
     if (wl_display == NULL) {

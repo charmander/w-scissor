@@ -67,15 +67,3 @@ int str_has_suffix(const char *string, const char *suffix) {
     size_t offset = string_length - suffix_length;
     return strcmp(string + offset, suffix) == 0;
 }
-
-const char *get_file_extension(const char *file_path) {
-    const char *name = strrchr(file_path, '/');
-    if (name == NULL) {
-        name = file_path;
-    }
-    const char *ext = strrchr(name, '.');
-    if (ext == NULL) {
-        return NULL;
-    }
-    return ext + 1;
-}

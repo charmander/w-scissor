@@ -17,5 +17,5 @@ complete -c wl-copy -s o -l paste-once -d 'Only serve one paste request and then
 complete -c wl-copy -s c -l clear -d 'Instead of copying anything, clear the clipboard'
 complete -c wl-copy -s p -l primary -d 'Use the "primary" clipboard'
 complete -c wl-copy -s n -l trim-newline -d 'Do not copy the trailing newline character'
-complete -c wl-copy -s t -l type -x -d 'Override the inferred MIME type for the content' -a "(__fish_print_xdg_mimetypes)"
+complete -c wl-copy -s t -l type -x -d 'Set the MIME type for the content' -a "(__fish_print_xdg_mimetypes)"
 complete -c wl-copy -s s -l seat -x -d 'Pick the seat to work with' -a "(__wayland_seats)"

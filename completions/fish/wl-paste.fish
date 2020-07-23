@@ -42,5 +42,5 @@ complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s n -l no-newline -
 complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s l -l list-types -d 'Instead of pasting, list the offered types'
 complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s p -l primary -d 'Use the "primary" clipboard'
 complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s w -l watch -d 'Run a command each time the selection changes'
-complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s t -l type -x -d 'Override the inferred MIME type for the content' -a "(__wl_paste_types)"
+complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s t -l type -x -d 'Set the MIME type for the content' -a "(__wl_paste_types)"
 complete -c wl-paste -n '__fish_not_contain_opt -s w watch' -s s -l seat -x -d 'Pick the seat to work with' -a "(__wayland_seats)"

@@ -29,6 +29,4 @@ int mime_type_is_text(const char *mime_type);
 int str_has_prefix(const char *string, const char *prefix);
 int str_has_suffix(const char *string, const char *suffix);
 
-const char *get_file_extension(const char *file_path);
-
 #endif /* UTIL_STRING_H */

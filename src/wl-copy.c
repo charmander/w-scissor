@@ -104,7 +104,7 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t-p, --primary\t\tUse the \"primary\" clipboard.\n"
         "\t-n, --trim-newline\tDo not copy the trailing newline character.\n"
         "\t-t, --type mime/type\t"
-        "Override the inferred MIME type for the content.\n"
+        "Set the MIME type for the content.\n"
         "\t-s, --seat seat-name\t"
         "Pick the seat to work with.\n"
         "\t-v, --version\t\tDisplay version info.\n"
@@ -237,9 +237,6 @@ int main(int argc, argv_t argv) {
             char *temp_file = dump_stdin_into_a_temp_file();
             if (options.trim_newline) {
                 trim_trailing_newline(temp_file);
-            }
-            if (options.mime_type == NULL) {
-                options.mime_type = infer_mime_type_from_contents(temp_file);
             }
             copy_action->file_to_copy = temp_file;
         }

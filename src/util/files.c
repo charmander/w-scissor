@@ -96,105 +96,6 @@ out:
     close(fd);
 }
 
-char *path_for_fd(int fd) {
-    char fdpath[64];
-    snprintf(fdpath, sizeof(fdpath), "/dev/fd/%d", fd);
-    return realpath(fdpath, NULL);
-}
-
-char *infer_mime_type_from_contents(const char *file_path) {
-    /* Spawn xdg-mime query filetype */
-    int pipefd[2];
-    int rc = pipe(pipefd);
-    if (rc < 0) {
-        perror("pipe");
-        return NULL;
-    }
-
-    pid_t pid = fork();
-    if (pid < 0) {
-        perror("fork");
-        close(pipefd[0]);
-        close(pipefd[1]);
-        return NULL;
-    }
-    if (pid == 0) {
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[0]);
-        close(pipefd[1]);
-        int devnull = open("/dev/null", O_RDONLY);
-        dup2(devnull, STDIN_FILENO);
-        close(devnull);
-        execlp("xdg-mime", "xdg-mime", "query", "filetype", file_path, NULL);
-        exit(1);
-    }
-
-    close(pipefd[1]);
-    int wstatus;
-    wait(&wstatus);
-
-    /* See if that worked */
-    if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0) {
-        close(pipefd[0]);
-        return NULL;
-    }
-
-    /* Read the result */
-    char *res = malloc(256);
-    size_t len = read(pipefd[0], res, 256);
-    /* Trim the newline */
-    len--;
-    res[len] = 0;
-    close(pipefd[0]);
-
-    if (str_has_prefix(res, "inode/")) {
-        free(res);
-        return NULL;
-    }
-
-    return res;
-}
-
-char *infer_mime_type_from_name(const char *file_path) {
-    const char *actual_ext = get_file_extension(file_path);
-    if (actual_ext == NULL) {
-        return NULL;
-    }
-
-    FILE *f = fopen("/etc/mime.types", "r");
-    if (f == NULL) {
-        f = fopen("/usr/local/etc/mime.types", "r");
-    }
-    if (f == NULL) {
-        return NULL;
-    }
-
-    for (char line[200]; fgets(line, sizeof(line), f) != NULL;) {
-        /* Skip comments and black lines */
-        if (line[0] == '#' || line[0] == '\n') {
-            continue;
-        }
-
-        /* Each line consists of a mime type and a list of extensions */
-        char mime_type[200];
-        int consumed;
-        if (sscanf(line, "%199s%n", mime_type, &consumed) != 1) {
-            /* A malformed line, perhaps? */
-            continue;
-        }
-        char *lineptr = line + consumed;
-        for (char ext[200]; sscanf(lineptr, "%199s%n", ext, &consumed) == 1;) {
-            if (strcmp(ext, actual_ext) == 0) {
-                fclose(f);
-                return strdup(mime_type);
-            }
-            lineptr += consumed;
-        }
-    }
-    fclose(f);
-    return NULL;
-}
-
 /* Returns the name of a new file */
 char *dump_stdin_into_a_temp_file() {
     /* Create a temp directory to host out file */
@@ -204,13 +105,7 @@ char *dump_stdin_into_a_temp_file() {
         exit(1);
     }
 
-    /* Pick a name for the file we'll be
-     * creating inside that directory. We
-     * try to preserve the origial name for
-     * the mime type inference to work.
-     */
-    char *original_path = path_for_fd(STDIN_FILENO);
-    char *name = original_path != NULL ? basename(original_path) : "stdin";
+    char const *name = "stdin";
 
     /* Construct the path */
     char *res_path = malloc(strlen(dirpath) + 1 + strlen(name) + 1);
@@ -239,9 +134,6 @@ char *dump_stdin_into_a_temp_file() {
 
     int wstatus;
     wait(&wstatus);
-    if (original_path != NULL) {
-        free(original_path);
-    }
     if (!WIFEXITED(wstatus) || WEXITSTATUS(wstatus) != 0) {
         bail("Failed to copy the file");
     }
