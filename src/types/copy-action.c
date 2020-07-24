@@ -92,31 +92,7 @@ static void do_send(struct source *source, const char *mime_type, int fd) {
          */
         wait(NULL);
     } else {
-        /* We'll perform the copy ourselves */
-        FILE *f = fdopen(fd, "w");
-        if (f == NULL) {
-            perror("fdopen");
-            close(fd);
-            return;
-        }
-
-        if (self->argv_to_copy != NULL) {
-            /* Copy an argv-style string array,
-             * inserting spaces between items.
-             */
-            int is_first = 1;
-            for (argv_t word = self->argv_to_copy; *word != NULL; word++) {
-                if (!is_first) {
-                    fwrite(" ", 1, 1, f);
-                }
-                is_first = 0;
-                fwrite(*word, 1, strlen(*word), f);
-            }
-        } else {
-            bail("Unreachable: nothing to copy");
-        }
-
-        fclose(f);
+        bail("Unreachable: nothing to copy");
     }
 
 

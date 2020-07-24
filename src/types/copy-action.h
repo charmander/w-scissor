@@ -42,7 +42,6 @@ struct copy_action {
      * is non-null, otherwise all these fields must be null.
      */
     const char *file_to_copy;
-    argv_t argv_to_copy;
 };
 
 void copy_action_init(struct copy_action *self);

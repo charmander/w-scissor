@@ -77,7 +77,6 @@ static void print_usage(FILE *f, const char *argv0) {
     fprintf(
         f,
         "Usage:\n"
-        "\t%s [options] text to copy\n"
         "\t%s [options] < file-to-copy\n\n"
         "Copy content to the Wayland clipboard.\n\n"
         "Options:\n"
@@ -94,7 +93,6 @@ static void print_usage(FILE *f, const char *argv0) {
         "Mandatory arguments to long options are mandatory"
         " for short options too.\n\n"
         "See wl-clipboard(1) for more details.\n",
-        argv0,
         argv0
     );
 }
@@ -156,6 +154,12 @@ static void parse_options(int argc, argv_t argv) {
             exit(1);
         }
     }
+
+    if (optind != argc) {
+        fprintf(stderr, "Unexpected argument: %s\n", argv[optind]);
+        print_usage(stderr, argv[0]);
+        exit(1);
+    }
 }
 
 int main(int argc, argv_t argv) {
@@ -201,23 +205,18 @@ int main(int argc, argv_t argv) {
     copy_action->primary = options.primary;
 
     if (!options.clear) {
-        if (optind < argc) {
-            /* Copy our command-line arguments */
-            copy_action->argv_to_copy = &argv[optind];
-        } else {
-            /* Copy data from our stdin.
-             * It's important that we only do this
-             * after going through the initial stages
-             * that are likely to result in errors,
-             * so that we don't forget to clean up
-             * the temp file.
-             */
-            char *temp_file = dump_stdin_into_a_temp_file();
-            if (options.trim_newline) {
-                trim_trailing_newline(temp_file);
-            }
-            copy_action->file_to_copy = temp_file;
+        /* Copy data from our stdin.
+         * It's important that we only do this
+         * after going through the initial stages
+         * that are likely to result in errors,
+         * so that we don't forget to clean up
+         * the temp file.
+         */
+        char *temp_file = dump_stdin_into_a_temp_file();
+        if (options.trim_newline) {
+            trim_trailing_newline(temp_file);
         }
+        copy_action->file_to_copy = temp_file;
 
         /* Create the source */
         copy_action->source = device_manager_create_source(device_manager);

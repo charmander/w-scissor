@@ -37,5 +37,4 @@ _arguments -S -s \
 	{-t+,--type=}'[Set the MIME type for the content]:mimetype:__xdg_mimetypes' \
 	{-s+,--seat=}'[Pick the seat to work with]:seat:__all_seats' \
 	{-v,--version}'[Display version info]' \
-	{-h,--help}'[Display a help message]' \
-	'*::text'
+	{-h,--help}'[Display a help message]'

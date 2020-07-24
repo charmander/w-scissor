@@ -8,7 +8,7 @@ Usage is as simple as:
 
 ```bash
 # copy a simple text message
-$ wl-copy Hello world!
+$ printf 'Hello world!' | wl-copy
 
 # copy the list of files in Downloads
 $ ls ~/Downloads | wl-copy
@@ -23,7 +23,7 @@ $ wl-paste > clipboard.txt
 $ for word in $(wl-paste); do grep $word source.c; done
 
 # copy the previous command
-$ wl-copy "!!"
+$ fc -ln -- -1 | wl-copy
 
 # replace the current selection with the list of types it's offered in
 $ wl-paste --list-types | wl-copy
