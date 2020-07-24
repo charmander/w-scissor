@@ -100,10 +100,7 @@ static void do_send(struct source *source, const char *mime_type, int fd) {
             return;
         }
 
-        if (self->data_to_copy.ptr != NULL) {
-            /* Just copy the given chunk of data */
-            fwrite(self->data_to_copy.ptr, 1, self->data_to_copy.len, f);
-        } else if (self->argv_to_copy != NULL) {
+        if (self->argv_to_copy != NULL) {
             /* Copy an argv-style string array,
              * inserting spaces between items.
              */

@@ -43,10 +43,6 @@ struct copy_action {
      */
     const char *file_to_copy;
     argv_t argv_to_copy;
-    struct {
-        const char *ptr;
-        size_t len;
-    } data_to_copy;
 };
 
 void copy_action_init(struct copy_action *self);
