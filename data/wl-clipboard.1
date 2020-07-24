@@ -6,7 +6,6 @@ wl-clipboard \- Wayland copy and paste command line utilities
 [\fB--primary\fR]
 [\fB--trim-newline\fR]
 [\fB--paste-once\fR]
-[\fB--foreground\fR]
 [\fB--clear\fR]
 [\fB--type \fImime/type\fR]
 [\fB--seat \fIseat-name\fR]
@@ -40,10 +39,6 @@ the clipboard after the first paste, which is useful for copying sensitive data
 such as passwords. Note that this may break pasting into some clients, in
 particular pasting into XWayland windows is known to break when this option is
 used.
-.TP
-\fB-f\fR, \fB--foreground
-By default, \fBwl-copy\fR forks and serves data requests in the background; this
-option overrides that behavior, causing \fBwl-copy\fR to run in the foreground.
 .TP
 \fB-c\fR, \fB--clear
 Instead of copying anything, clear the clipboard so that nothing is copied.

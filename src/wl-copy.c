@@ -34,7 +34,6 @@
 #include <getopt.h>
 
 static struct {
-    int stay_in_foreground;
     int clear;
     char *mime_type;
     int trim_newline;
@@ -46,22 +45,6 @@ static struct {
 static void did_set_selection_callback(struct copy_action *copy_action) {
     if (options.clear) {
         exit(0);
-    }
-
-    if (!options.stay_in_foreground) {
-        /* Move to background.
-         * We fork our process and leave the
-         * child running in the background,
-         * while exiting in the parent.
-         */
-        pid_t pid = fork();
-        if (pid < 0) {
-            perror("fork");
-            /* Proceed without forking */
-        }
-        if (pid > 0) {
-            exit(0);
-        }
     }
 }
 
@@ -99,7 +82,6 @@ static void print_usage(FILE *f, const char *argv0) {
         "Copy content to the Wayland clipboard.\n\n"
         "Options:\n"
         "\t-o, --paste-once\tOnly serve one paste request and then exit.\n"
-        "\t-f, --foreground\tStay in the foreground instead of forking.\n"
         "\t-c, --clear\t\tInstead of copying anything, clear the clipboard.\n"
         "\t-p, --primary\t\tUse the \"primary\" clipboard.\n"
         "\t-n, --trim-newline\tDo not copy the trailing newline character.\n"
@@ -128,7 +110,6 @@ static void parse_options(int argc, argv_t argv) {
         {"primary", no_argument, 0, 'p'},
         {"trim-newline", no_argument, 0, 'n'},
         {"paste-once", no_argument, 0, 'o'},
-        {"foreground", no_argument, 0, 'f'},
         {"clear", no_argument, 0, 'c'},
         {"type", required_argument, 0, 't'},
         {"seat", required_argument, 0, 's'},
@@ -136,7 +117,7 @@ static void parse_options(int argc, argv_t argv) {
     };
     while (1) {
         int option_index;
-        const char *opts = "vhpnofct:s:";
+        const char *opts = "vhpnoct:s:";
         int c = getopt_long(argc, argv, opts, long_options, &option_index);
         if (c == -1) {
             break;
@@ -159,9 +140,6 @@ static void parse_options(int argc, argv_t argv) {
             break;
         case 'o':
             options.paste_once = 1;
-            break;
-        case 'f':
-            options.stay_in_foreground = 1;
             break;
         case 'c':
             options.clear = 1;

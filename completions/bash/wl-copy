@@ -46,7 +46,6 @@ _wl_copy_completion() {
             ;;
         *)
             opts="-o --paste-once "
-            opts+="-f --foreground "
             opts+="-c --clear "
             opts+="-p --primary "
             opts+="-n --trim-newline "
