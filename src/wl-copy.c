@@ -27,6 +27,10 @@
 #include "util/string.h"
 #include "util/misc.h"
 
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <wayland-client.h>
 #include <unistd.h>
 #include <string.h>
@@ -36,11 +40,73 @@
 static struct {
     int clear;
     char *mime_type;
-    int trim_newline;
-    int paste_once;
+    int buffer;
     int primary;
     const char *seat_name;
 } options;
+
+struct buffer {
+    uint8_t* bytes;
+    size_t length;
+};
+
+enum read_error {
+    READ_ERROR_NONE,
+    READ_ERROR_MALLOC,
+    READ_ERROR_ERRNO,
+};
+
+__attribute__ ((nonnull, warn_unused_result))
+static enum read_error read_to_end(int const fd, struct buffer* const buf) {
+    size_t capacity = 8192;
+    size_t length = 0;
+    uint8_t* bytes = malloc(capacity);
+
+    if (bytes == NULL) {
+        return READ_ERROR_MALLOC;
+    }
+
+    for (;;) {
+        if (length == capacity) {
+            if ((size_t)SSIZE_MAX - capacity / 2 > capacity) {
+                free(bytes);
+                return READ_ERROR_MALLOC;
+            }
+
+            capacity += capacity / 2;
+
+            uint8_t* const resized_bytes = realloc(bytes, capacity);
+
+            if (resized_bytes == NULL) {
+                free(bytes);
+                return READ_ERROR_MALLOC;
+            }
+
+            bytes = resized_bytes;
+        }
+
+        ssize_t const r = read(fd, &bytes[length], capacity - length);
+
+        if (r == -1) {
+            if (errno == EAGAIN) {
+                continue;
+            }
+
+            free(bytes);
+            return READ_ERROR_ERRNO;
+        }
+
+        if (r == 0) {
+            break;
+        }
+
+        length += (size_t)r;
+    }
+
+    buf->bytes = bytes;
+    buf->length = length;
+    return READ_ERROR_NONE;
+}
 
 static void did_set_selection_callback(struct copy_action *copy_action) {
     if (options.clear) {
@@ -48,28 +114,13 @@ static void did_set_selection_callback(struct copy_action *copy_action) {
     }
 }
 
-static void cleanup_and_exit(struct copy_action *copy_action, int code) {
-    /* We're done copying!
-     * All that's left to do now is to
-     * clean up after ourselves and exit.*/
-    char *temp_file = (char *) copy_action->file_to_copy;
-    if (temp_file != NULL) {
-        /* Clean up our temporary file */
-        execlp("rm", "rm", "-r", dirname(temp_file), NULL);
-        perror("exec rm");
-        exit(1);
-    } else {
-        exit(code);
-    }
-}
-
 static void cancelled_callback(struct copy_action *copy_action) {
-    cleanup_and_exit(copy_action, 0);
+    exit(0);
 }
 
 static void pasted_callback(struct copy_action *copy_action) {
-    if (options.paste_once) {
-        cleanup_and_exit(copy_action, 0);
+    if (!options.buffer) {
+        exit(0);
     }
 }
 
@@ -80,10 +131,9 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t%s [options] < file-to-copy\n\n"
         "Copy content to the Wayland clipboard.\n\n"
         "Options:\n"
-        "\t-o, --paste-once\tOnly serve one paste request and then exit.\n"
+        "\t-b, --buffer\t\tServe multiple paste requests by buffering input in memory.\n"
         "\t-c, --clear\t\tInstead of copying anything, clear the clipboard.\n"
         "\t-p, --primary\t\tUse the \"primary\" clipboard.\n"
-        "\t-n, --trim-newline\tDo not copy the trailing newline character.\n"
         "\t-t, --type mime/type\t"
         "Set the MIME type for the content.\n"
         "\t-s, --seat seat-name\t"
@@ -106,8 +156,7 @@ static void parse_options(int argc, argv_t argv) {
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {"primary", no_argument, 0, 'p'},
-        {"trim-newline", no_argument, 0, 'n'},
-        {"paste-once", no_argument, 0, 'o'},
+        {"buffer", no_argument, 0, 'b'},
         {"clear", no_argument, 0, 'c'},
         {"type", required_argument, 0, 't'},
         {"seat", required_argument, 0, 's'},
@@ -115,7 +164,7 @@ static void parse_options(int argc, argv_t argv) {
     };
     while (1) {
         int option_index;
-        const char *opts = "vhpnoct:s:";
+        const char *opts = "vhpbct:s:";
         int c = getopt_long(argc, argv, opts, long_options, &option_index);
         if (c == -1) {
             break;
@@ -133,11 +182,8 @@ static void parse_options(int argc, argv_t argv) {
         case 'p':
             options.primary = 1;
             break;
-        case 'n':
-            options.trim_newline = 1;
-            break;
-        case 'o':
-            options.paste_once = 1;
+        case 'b':
+            options.buffer = 1;
             break;
         case 'c':
             options.clear = 1;
@@ -203,20 +249,31 @@ int main(int argc, argv_t argv) {
     struct copy_action *copy_action = calloc(1, sizeof(struct copy_action));
     copy_action->device = device;
     copy_action->primary = options.primary;
+    copy_action->fd_to_copy = -1;
 
     if (!options.clear) {
-        /* Copy data from our stdin.
-         * It's important that we only do this
-         * after going through the initial stages
-         * that are likely to result in errors,
-         * so that we don't forget to clean up
-         * the temp file.
-         */
-        char *temp_file = dump_stdin_into_a_temp_file();
-        if (options.trim_newline) {
-            trim_trailing_newline(temp_file);
+        if (options.buffer) {
+            struct buffer buf;
+
+            switch (read_to_end(STDIN_FILENO, &buf)) {
+            case READ_ERROR_NONE:
+                break;
+
+            case READ_ERROR_MALLOC:
+                fputs("read from file to copy failed: allocation failed\n",
+                stderr);
+                return EXIT_FAILURE;
+
+            case READ_ERROR_ERRNO:
+                perror("read from file to copy failed");
+                return EXIT_FAILURE;
+            }
+
+            copy_action->bytes_to_copy = buf.bytes;
+            copy_action->bytes_to_copy_len = buf.length;
+        } else {
+            copy_action->fd_to_copy = STDIN_FILENO;
         }
-        copy_action->file_to_copy = temp_file;
 
         /* Create the source */
         copy_action->source = device_manager_create_source(device_manager);
@@ -249,6 +306,5 @@ int main(int argc, argv_t argv) {
     while (wl_display_dispatch(wl_display) >= 0);
 
     perror("wl_display_dispatch");
-    cleanup_and_exit(copy_action, 1);
     return 1;
 }

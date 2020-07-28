@@ -21,13 +21,4 @@
 
 int create_anonymous_file(void);
 
-void trim_trailing_newline(const char *file_path);
-
-/* These functions return owned strings, so make sure
- * to free() their return values when done with them.
- */
-
-/* Returns the name of a new file */
-char *dump_stdin_into_a_temp_file(void);
-
 #endif /* UTIL_FILES_H */

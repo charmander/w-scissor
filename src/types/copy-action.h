@@ -22,6 +22,7 @@
 #include "util/string.h"
 
 #include <stddef.h>
+#include <stdint.h>
 
 struct device;
 struct source;
@@ -38,10 +39,9 @@ struct copy_action {
     void (*pasted_callback)(struct copy_action *self);
     void (*cancelled_callback)(struct copy_action *self);
 
-    /* Exactly one of these fields must be non-null if the source
-     * is non-null, otherwise all these fields must be null.
-     */
-    const char *file_to_copy;
+    int fd_to_copy;
+    uint8_t const* bytes_to_copy;
+    size_t bytes_to_copy_len;
 };
 
 void copy_action_init(struct copy_action *self);

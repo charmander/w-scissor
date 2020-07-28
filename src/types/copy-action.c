@@ -23,6 +23,9 @@
 
 #include "util/misc.h"
 
+#include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -59,41 +62,78 @@ static void on_focus(
     do_set_selection(self, serial);
 }
 
+__attribute__ ((nonnull, warn_unused_result))
+static bool write_with_retry(
+    int const fd,
+    uint8_t const* const buf,
+    size_t const nbyte
+) {
+    size_t remaining = nbyte;
+    uint8_t const* buf_ptr = buf;
+
+    while (remaining != 0) {
+        ssize_t const w = write(fd, buf_ptr, remaining);
+
+        if (w == -1) {
+            if (errno == EINTR) {
+                continue;
+            }
+
+            return false;
+        }
+
+        remaining -= (size_t)w;
+        buf_ptr += w;
+    }
+
+    return true;
+}
+
 static void do_send(struct source *source, const char *mime_type, int fd) {
-    struct copy_action *self = source->data;
+    struct copy_action* self = source->data;
+    int const fd_to_copy = self->fd_to_copy;
+    uint8_t const* const bytes_to_copy = self->bytes_to_copy;
 
      /* Unset O_NONBLOCK */
     fcntl(fd, F_SETFL, 0);
 
-    if (self->file_to_copy != NULL) {
-        /* Copy the file to the given file descriptor
-         * by spawning an appropriate cat process.
-         */
-        pid_t pid = fork();
-        if (pid < 0) {
-            perror("fork");
+    if (fd_to_copy != -1) {
+        for (;;) {
+            uint8_t buf[8192];
+
+            ssize_t const r = read(fd_to_copy, buf, sizeof buf);
+
+            if (r == -1) {
+                if (errno == EINTR) {
+                    continue;
+                }
+
+                perror("read from file to copy failed");
+                close(fd);
+                return;
+            }
+
+            if (r == 0) {
+                break;
+            }
+
+            if (!write_with_retry(fd, buf, (size_t)r)) {
+                perror("write of file to copy failed");
+                close(fd);
+                return;
+            }
+        }
+    } else if (bytes_to_copy != NULL) {
+        if (!write_with_retry(fd, bytes_to_copy, self->bytes_to_copy_len)) {
+            perror("write of bytes to copy failed");
             close(fd);
             return;
         }
-        if (pid == 0) {
-            dup2(fd, STDOUT_FILENO);
-            close(fd);
-            execlp("cat", "cat", self->file_to_copy, NULL);
-            perror("exec cat");
-            exit(1);
-        }
-        close(fd);
-        /* Wait for the cat process to exit. This effectively
-         * means waiting for the other side to read the whole
-         * file. In theory, a malicious client could perform a
-         * denial-of-serivice attack against us. Perhaps we
-         * should switch to an asynchronous child waiting scheme
-         * instead.
-         */
-        wait(NULL);
     } else {
         bail("Unreachable: nothing to copy");
     }
+
+    close(fd);
 
 
     if (self->pasted_callback != NULL) {
