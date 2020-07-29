@@ -31,7 +31,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
       with:
-        languages: c
+        languages: cpp
         tools: https://github.com/github/codeql-action/releases/download/codeql-bundle-20200601/codeql-bundle.tar.gz
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
