@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install build tools
+      run: |
+        apt-get install -y meson
+
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
@@ -30,9 +34,6 @@ jobs:
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
-      with:
-        languages: cpp
-        tools: https://github.com/github/codeql-action/releases/download/codeql-bundle-20200601/codeql-bundle.tar.gz
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
