@@ -17,7 +17,7 @@ jobs:
     steps:
     - name: Install build tools
       run: |
-        apt-get install -y meson
+        sudo apt-get install -y meson
 
     - name: Checkout repository
       uses: actions/checkout@v2
