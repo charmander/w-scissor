@@ -1,4 +1,4 @@
-project('wl-clipboard', 'c',
+project('w-scissor', 'c',
     version: '2.0.0',
     license: 'GPL3+',
     meson_version: '>= 0.44.0',

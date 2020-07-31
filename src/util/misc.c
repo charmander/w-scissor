@@ -1,4 +1,4 @@
-/* wl-clipboard
+/* w-scissor
  *
  * Copyright © 2019 Sergey Bugaev <bugaevc@gmail.com>
  *
@@ -23,7 +23,7 @@
 
 void print_version_info() {
     printf(
-        "wl-clipboard " PROJECT_VERSION "\n"
+        "w-scissor " PROJECT_VERSION "\n"
         "Copyright (C) 2019 Sergey Bugaev\n"
         "License GPLv3+: GNU GPL version 3 or later"
         " <https://gnu.org/licenses/gpl.html>.\n"
@@ -39,7 +39,7 @@ void complain_about_selection_support(int primary) {
     }
 
 #if !defined(HAVE_WP_PRIMARY_SELECTION) && !defined(HAVE_GTK_PRIMARY_SELECTION)
-    bail("wl-clipboard was built without primary selection support");
+    bail("w-scissor was built without primary selection support");
 #endif
 
     bail("The compositor does not seem to support primary selection");
@@ -53,7 +53,7 @@ void complain_about_watch_mode_support() {
     );
 #else
     bail(
-        "wl-clipboard was built without wlroots data-control protocol support"
+        "w-scissor was built without wlroots data-control protocol support"
     );
 #endif
 }

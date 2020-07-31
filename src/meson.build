@@ -88,7 +88,7 @@ foreach protocol : protocols
 endforeach
 
 lib = static_library(
-    'wl-clipboard',
+    'w-scissor',
     [
         protocol_headers,
 
@@ -130,15 +130,15 @@ lib = static_library(
 )
 
 executable(
-    'wl-copy',
-    ['wl-copy.c', protocol_headers],
+    'ws-copy',
+    ['ws-copy.c', protocol_headers],
     dependencies: wayland,
     link_with: lib,
     install: true
 )
 executable(
-    'wl-paste',
-    ['wl-paste.c', protocol_headers],
+    'ws-paste',
+    ['ws-paste.c', protocol_headers],
     dependencies: wayland,
     link_with: lib,
     install: true

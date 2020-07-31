@@ -1,4 +1,4 @@
-#compdef wl-copy
+#compdef ws-copy
 
 __xdg_mimetypes() {
 	local expl SEARCH=${XDG_DATA_HOME:-$HOME/.local/share}

@@ -1,3 +1,3 @@
-install_man('wl-copy.1')
-install_man('wl-paste.1')
-install_man('wl-clipboard.1')
+install_man('ws-copy.1')
+install_man('ws-paste.1')
+install_man('w-scissor.1')

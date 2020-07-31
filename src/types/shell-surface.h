@@ -1,4 +1,4 @@
-/* wl-clipboard
+/* w-scissor
  *
  * Copyright © 2019 Sergey Bugaev <bugaevc@gmail.com>
  *

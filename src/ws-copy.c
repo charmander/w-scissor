@@ -1,4 +1,4 @@
-/* wl-clipboard
+/* w-scissor
  *
  * Copyright © 2019 Sergey Bugaev <bugaevc@gmail.com>
  *
@@ -142,7 +142,7 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t-h, --help\t\tDisplay this message.\n"
         "Mandatory arguments to long options are mandatory"
         " for short options too.\n\n"
-        "See wl-clipboard(1) for more details.\n",
+        "See w-scissor(1) for more details.\n",
         argv0
     );
 }

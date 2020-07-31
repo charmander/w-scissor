@@ -1,4 +1,4 @@
-# wl-copy(1) completion
+# ws-copy(1) completion
 
 _wl_clipboard_list_seats() {
     weston-info 2>/dev/null | sed -n '/wl_seat/{n;s/\s*name: //;p}'
@@ -58,4 +58,4 @@ _wl_copy_completion() {
     esac
 }
 
-complete -o default -F _wl_copy_completion wl-copy
+complete -o default -F _wl_copy_completion ws-copy

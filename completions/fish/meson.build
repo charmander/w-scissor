@@ -13,6 +13,6 @@ elif fish_completion_dir == ''
 endif
 
 if fish_completion_dir != 'no'
-    install_data('wl-copy.fish', install_dir: fish_completion_dir)
-    install_data('wl-paste.fish', install_dir: fish_completion_dir)
+    install_data('ws-copy.fish', install_dir: fish_completion_dir)
+    install_data('ws-paste.fish', install_dir: fish_completion_dir)
 endif

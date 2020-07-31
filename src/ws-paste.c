@@ -1,4 +1,4 @@
-/* wl-clipboard
+/* w-scissor
  *
  * Copyright © 2019 Sergey Bugaev <bugaevc@gmail.com>
  *
@@ -282,7 +282,7 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t-h, --help\t\tDisplay this message.\n"
         "Mandatory arguments to long options are mandatory"
         " for short options too.\n\n"
-        "See wl-clipboard(1) for more details.\n",
+        "See w-scissor(1) for more details.\n",
         argv0
     );
 }
@@ -338,13 +338,13 @@ static void parse_options(int argc, argv_t argv) {
              * the optind variable to point to the *next* option
              * to be processed, after both the current option and
              * its argument, if any. So if we're invoked like this:
-             * $ wl-paste --primary --watch foo bar baz
+             * $ ws-paste --primary --watch foo bar baz
              * then optind will point to bar, as it considers foo
              * to be the argument that --watch requires. However,
              * if we get invoked like this:
-             * $ wl-paste --watch=foo bar baz
+             * $ ws-paste --watch=foo bar baz
              * or like this:
-             * $ wl-paste -wfoo bar baz
+             * $ ws-paste -wfoo bar baz
              * then getopt will not consider it an error, and optind
              * will also point to bar. We do consider that an error,
              * so detect this case and print an error message.
