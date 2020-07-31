@@ -48,7 +48,6 @@ _wl_copy_completion() {
             opts="-o --paste-once "
             opts+="-c --clear "
             opts+="-p --primary "
-            opts+="-n --trim-newline "
             opts+="-t --type "
             opts+="-s --seat "
             opts+="-v --version "

@@ -38,7 +38,6 @@ complete -c ws-paste -f
 complete -c ws-paste -f -n '__fish_contains_opt -s w watch' -a "(__fish_complete_subcommand -- -s --seat -t --type)"
 complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s h -l help -d 'Display a help message'
 complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s v -l version -d 'Display version info'
-complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s n -l no-newline -d 'Do not append a newline character'
 complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s l -l list-types -d 'Instead of pasting, list the offered types'
 complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s p -l primary -d 'Use the "primary" clipboard'
 complete -c ws-paste -n '__fish_not_contain_opt -s w watch' -s w -l watch -d 'Run a command each time the selection changes'

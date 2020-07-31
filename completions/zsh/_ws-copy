@@ -33,7 +33,6 @@ _arguments -S -s \
 	{-o,--paste-once}'[Only serve one paste request and then exit]' \
 	{-c,--clear}'[Instead of copying anything, clear the clipboard]' \
 	{-p,--primary}'[Use the "primary" clipboard]' \
-	{-n,--trim-newline}'[Do not copy the trailing newline character]' \
 	{-t+,--type=}'[Set the MIME type for the content]:mimetype:__xdg_mimetypes' \
 	{-s+,--seat=}'[Pick the seat to work with]:seat:__all_seats' \
 	{-v,--version}'[Display version info]' \

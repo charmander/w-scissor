@@ -37,7 +37,6 @@
 
 static struct {
     char *explicit_type;
-    int no_newline;
     int list_types;
     int primary;
     int watch;
@@ -183,11 +182,6 @@ static void selection_callback(struct offer *offer, int primary) {
         bail("No suitable type of content copied");
     }
 
-    /* Never append a newline character to binary content */
-    if (!mime_type_is_text(mime_type)) {
-        options.no_newline = 1;
-    }
-
     /* Create a pipe which we'll
      * use to receive the data.
      */
@@ -247,12 +241,6 @@ static void selection_callback(struct offer *offer, int primary) {
     close(pipefd[0]);
     close(pipefd[1]);
     wait(NULL);
-    if (!options.no_newline && !options.watch) {
-        rc = write(STDOUT_FILENO, "\n", 1);
-        if (rc != 1) {
-            perror("write");
-        }
-    }
 
     offer_destroy(offer);
 
@@ -269,7 +257,6 @@ static void print_usage(FILE *f, const char *argv0) {
         "\t%s [options]\n"
         "Paste content from the Wayland clipboard.\n\n"
         "Options:\n"
-        "\t-n, --no-newline\tDo not append a newline character.\n"
         "\t-l, --list-types\tInstead of pasting, list the offered types.\n"
         "\t-p, --primary\t\tUse the \"primary\" clipboard.\n"
         "\t-w, --watch command\t"
@@ -296,7 +283,6 @@ static void parse_options(int argc, argv_t argv) {
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {"primary", no_argument, 0, 'p'},
-        {"no-newline", no_argument, 0, 'n'},
         {"list-types", no_argument, 0, 'l'},
         {"watch", required_argument, 0, 'w'},
         {"type", required_argument, 0, 't'},
@@ -305,7 +291,7 @@ static void parse_options(int argc, argv_t argv) {
     };
     while (1) {
         int option_index;
-        const char *opts = "vhpnlw:t:s:";
+        const char *opts = "vhplw:t:s:";
         int c = getopt_long(argc, argv, opts, long_options, &option_index);
         if (c == -1) {
             break;
@@ -322,9 +308,6 @@ static void parse_options(int argc, argv_t argv) {
             exit(0);
         case 'p':
             options.primary = 1;
-            break;
-        case 'n':
-            options.no_newline = 1;
             break;
         case 'l':
             options.list_types = 1;

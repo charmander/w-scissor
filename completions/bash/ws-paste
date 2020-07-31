@@ -82,8 +82,7 @@ _wl_paste_completion() {
             COMPREPLY=($(compgen -W "$seats" -- "$cur"))
             ;;
         *)
-            opts="-n --no-newline "
-            opts+="-l --list-types "
+            opts="-l --list-types "
             opts+="-p --primary "
             opts+="-w --watch "
             opts+="-t --type "

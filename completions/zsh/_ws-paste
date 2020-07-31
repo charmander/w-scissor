@@ -32,7 +32,6 @@ __all_seats() {
 }
 
 _arguments -S -s \
-	{-n,--no-newline}'[Do not append a newline character]' \
 	{-l,--list-types}'[Instead of pasting, list the offered types]' \
 	{-p,--primary}'[Use the "primary" clipboard]' \
 	{-w,--watch}'[Run a command wach time the selection changes]:*::command:_normal' \

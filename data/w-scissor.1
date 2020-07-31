@@ -4,7 +4,6 @@ w-scissor \- Wayland copy and paste command line utilities
 .SH SYNOPSIS
 .B ws-copy
 [\fB--primary\fR]
-[\fB--trim-newline\fR]
 [\fB--paste-once\fR]
 [\fB--clear\fR]
 [\fB--type \fImime/type\fR]
@@ -12,7 +11,6 @@ w-scissor \- Wayland copy and paste command line utilities
 .PP
 .B ws-paste
 [\fB--primary\fR]
-[\fB--no-newline\fR]
 [\fB--list-types\fR]
 [\fB--type \fImime/type\fR]
 [\fB--seat \fIseat-name\fR]
@@ -41,14 +39,6 @@ used.
 .TP
 \fB-c\fR, \fB--clear
 Instead of copying anything, clear the clipboard so that nothing is copied.
-.TP
-\fB-n\fR, \fB--trim-newline
-Do not copy the trailing newline character if it is present in the input file.
-.TP
-\fB-n\fR, \fB--no-newline
-Do not append a newline character after the pasted clipboard content. This
-option is automatically enabled for non-text content types and when using the
-\fB--watch\fR mode.
 .TP
 \fB-t\fI mime/type\fR, \fB--type\fI mime/type
 Override the automatically selected MIME type. For \fBws-copy\fR this option
