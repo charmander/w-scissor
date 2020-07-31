@@ -124,11 +124,10 @@ static void pasted_callback(struct copy_action *copy_action) {
     }
 }
 
-static void print_usage(FILE *f, const char *argv0) {
-    fprintf(
-        f,
+static void print_usage(FILE *f) {
+    fputs(
         "Usage:\n"
-        "\t%s [options] < file-to-copy\n\n"
+        "\tws-copy [options] < file-to-copy\n\n"
         "Copy content to the Wayland clipboard.\n\n"
         "Options:\n"
         "\t-b, --buffer\t\tServe multiple paste requests by buffering input in memory.\n"
@@ -143,15 +142,11 @@ static void print_usage(FILE *f, const char *argv0) {
         "Mandatory arguments to long options are mandatory"
         " for short options too.\n\n"
         "See w-scissor(1) for more details.\n",
-        argv0
+        f
     );
 }
 
 static void parse_options(int argc, argv_t argv) {
-    if (argc < 1) {
-        bail("Empty argv");
-    }
-
     static struct option long_options[] = {
         {"version", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
@@ -177,7 +172,7 @@ static void parse_options(int argc, argv_t argv) {
             print_version_info();
             exit(0);
         case 'h':
-            print_usage(stdout, argv[0]);
+            print_usage(stdout);
             exit(0);
         case 'p':
             options.primary = 1;
@@ -196,14 +191,14 @@ static void parse_options(int argc, argv_t argv) {
             break;
         default:
             /* getopt has already printed an error message */
-            print_usage(stderr, argv[0]);
+            print_usage(stderr);
             exit(1);
         }
     }
 
     if (optind != argc) {
         fprintf(stderr, "Unexpected argument: %s\n", argv[optind]);
-        print_usage(stderr, argv[0]);
+        print_usage(stderr);
         exit(1);
     }
 }
