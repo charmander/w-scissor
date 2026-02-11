@@ -1,3 +1,20 @@
+> [!WARNING]
+> This fork is currently unmaintained, but I **strongly discourage use of wl-clipboard**.
+>
+> - Unrestricted autodetection of media types is a bad idea.
+> - Running `xdg-mime query filetype` → libmagic/`file` in order to achieve that is a bad idea.
+> - Writing clipboard data to files in `$TMPDIR` in order to do *that* is a bad idea.
+>     - When I initially forked this, those files would stick around indefinitely after non-success exits (a broader category than it might appear).
+>     - Those files and their contents *still* stick around indefinitely after certain types of failures.
+> - Opportunistically writing temporary files with the same name as the input file attached to stdin is a bad idea.
+> - Writing new software in C is a bad idea.
+> - Copying (potentially large, potentially sensitive) data around when you don’t have to is a suboptimal idea.
+> - A CLI that encourages the `wl-copy "$str"` bug (cf. `wl-copy -- "$str"`) and `/proc/*/cmdline` exposure is a bad idea.
+>
+> I’m aware of many bugs in wl-clipboard that I haven’t bothered fixing because of these fundamental flaws. Some of them probably have security implications.
+>
+> I’ve seen enough of [wl-clipboard-rs](https://github.com/YaLTeR/wl-clipboard-rs)’s implementation to know that it fixes some of these issues, but have not reviewed it thoroughly.
+
 # w-scissor: Wayland clipboard utilities
 
 This project implements two command-line Wayland clipboard utilities, `ws-copy`
